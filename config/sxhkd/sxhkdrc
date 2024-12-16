@@ -1,0 +1,113 @@
+# reloads sxhkd configuration:
+super + r
+    pkill -USR1 -x sxhkd; notify-send 'sxhkd' 'Config reloaded!'
+
+# Launch Terminal
+super + q
+    alacritty
+
+# Set random wallpaper
+super + w
+	sh $HOME/bin/random_wallpaper
+
+# Launch Rofi Menu
+super + {d,x,i,b}
+    {rofi -show drun, \
+    sh $HOME/bin/powermenu, \
+    sh $HOME/bin/wifimenu, \
+    rofi-bluetooth, \
+    pavucontrol, \
+    telegram-desktop}
+
+# Launch Applications
+super + {n}
+	{thunar}
+
+Shift_L + alt
+	BSPC node -t "~"{floating,tiled}
+
+# Volume controls
+XF86Audio{RaiseVolume,LowerVolume,Mute}
+    sh $HOME/bin/volume{ --up, --down, --toggle}
+
+# Brightness controls
+XF86MonBrightness{Up,Down}
+    sh $HOME/bin/brightness{ --up, --down}
+
+# screenshot
+super + shift + s
+    flameshot gui
+
+#
+#
+# BSPWM HOTKEYS
+#
+#
+
+# quit/restart bspwm
+ctrl + shift + {q,r}
+    bspc {quit,wm -r}
+
+# close and kill
+super + c
+    bspc node -c
+
+# change language
+super + space
+	sh $HOME/bin/change_language.sh
+
+#
+# state/flags
+#
+
+# set the window state
+super + {t,ctrl + t,f}
+	bspc node -t {tiled,pseudo_tiled,fullscreen}
+
+#
+# focus/swap
+#
+
+
+# focus the last node/desktop
+super + {grave,Tab}
+	bspc {node,desktop} -f last
+
+# send focus window to current desktop
+super + {_,shift + }{1-9,0}
+	bspc {desktop -f,node -d} '^{1-9,10}'
+
+#
+# preselect
+#
+
+# preselect the ratio
+super + ctrl + {1-9}
+	bspc node -o 0.{1-9}
+
+# cancel the preselection for the focused node
+super + ctrl + space
+	bspc node -p cancel
+
+# cancel the preselection for the focused desktop
+super + ctrl + shift + space
+	bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
+
+#
+# move/resize
+#
+
+# Expanding windows
+super + control {h,j,k,l}
+    bspc node -z {left -20 0,right 20 0,top 0 -20,bottom 0 20}
+
+super + control + shift + {h,j,k,l}
+    bspc node -z {right -10,up +10,down -10,left +10}
+
+# Send the window to another edge of the screen
+super + {_,alt + }{h,j,k,l}
+    bspc node -{f,s} {west,south,north,east}
+
+# set the node flags
+super + ctrl + {m,x,y,z}
+	bspc node -g {marked,locked,sticky,private}

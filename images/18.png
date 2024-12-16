@@ -1,0 +1,11 @@
+#!/bin/bash
+
+counter=1
+
+# Loop through all files in the current directory
+for file in *; do
+    if [[ -f "$file" ]]; then  # Check if it's a file
+        mv "$file" "$counter.png"
+        counter=$((counter + 1))
+    fi
+done

@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+# Check if NetworkManager is running
+if ! pgrep -x "NetworkManager" > /dev/null; then
+    # Use rofi to securely ask for the root password to start NetworkManager
+    root_pass=$(rofi -dmenu -password -p "Root Password: ")
+    echo "$root_pass" | sudo -S systemctl start NetworkManager || { notify-send "Error" "Failed to start NetworkManager"; exit 1; }
+fi
+
+# Notify user about Wi-Fi scan
+notify-send "Getting list of available Wi-Fi networks..."
+
+# Check Wi-Fi state and set toggle option
+wifi_state=$(nmcli -fields WIFI g)
+if [[ "$wifi_state" == *"enabled"* ]]; then
+    toggle="󱛅  Disable Wi-Fi"
+else
+    toggle="󱚽  Enable Wi-Fi"
+fi
+
+wifi_list=$(nmcli --fields "SECURITY,SSID" device wifi list | sed 1d | sed 's/  */ /g' | sed -E "s/WPA*.?\S/ /g" | sed "s/^--/ /g" | sed "s/  //g" | sed "/--/d" | sed 's/\\/\\\\/g' | sort -u)
+
+# Show the Wi-Fi list in rofi, including Wi-Fi toggle option
+chosen_network=$(echo -e "$toggle\n$wifi_list" | rofi -dmenu -i -selected-row 1 -p "Wi-Fi SSID: " | sed 's/\\/\\\\/g')
+
+# Exit if no network is selected
+[ -z "$chosen_network" ] && exit
+
+# Toggle Wi-Fi on/off
+if [[ "$chosen_network" == "󱚽  Enable Wi-Fi" ]]; then
+    nmcli radio wifi on
+    notify-send "Wi-Fi" "Wi-Fi enabled."
+    exit
+elif [[ "$chosen_network" == "󱛅  Disable Wi-Fi" ]]; then
+    nmcli radio wifi off
+    notify-send "Wi-Fi" "Wi-Fi disabled."
+    exit
+fi
+
+# Message to show when connection is activated successfully
+success_message="You are now connected to the Wi-Fi network \"$chosen_network\"."
+error_message="Failed to connect to \"$chosen_network\"."
+
+# Get known connections
+saved_connections=$(nmcli -g NAME connection)
+
+just_network_name=$(echo "$chosen_network" | sed 's///g' | tr -d ' ')
+notify-send "$just_network_name"
+
+# Check if the chosen network is already saved
+if echo "$saved_connections" | grep -Fqw "$just_network_name"; then
+    # Try to activate the saved connection
+    notify-send "$just_network_name"
+    if nmcli connection up $just_network_name; then
+        notify-send "Connection Established" "$success_message"
+    else
+        notify-send "Connection Failed" "$error_message"
+    fi
+else
+    # If the network has a lock icon, request a password
+    if [[ "$chosen_network" =~ "" ]]; then
+
+        wifi_password=$(rofi -dmenu -p "Password: ")
+        if [ -z "$wifi_password" ]; then
+            notify-send "Connection Failed" "No password provided."
+            exit 1
+        fi
+    fi
+
+    # Try to connect using the provided password
+    if nmcli device wifi connect "$chosen_network" password "$wifi_password"; then
+        notify-send "Connection Established" "$success_message"
+    else
+        notify-send "Connection Failed" "$error_message"
+    fi
+fi
