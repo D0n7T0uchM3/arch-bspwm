@@ -24,7 +24,7 @@ class GraphicDrivers:
         """
         Prepares multilib repository and installs hybrid graphic drivers.
         """
-        logger.add_record("GraphicDrivers.build() is deprecated and will be removed soon.", LoggerStatus.FAILURE)
+        logger.add_record("GraphicDrivers.build() is deprecated and will be removed soon.", status=LoggerStatus.FAILURE)
         GraphicDrivers.__prepare_multilib()
         GraphicDrivers.__update_multilib_repo()
         GraphicDrivers.__install_hybrid_drivers()
