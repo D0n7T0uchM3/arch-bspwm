@@ -33,7 +33,7 @@ class SystemConfiguration:
         if args[0]: SystemConfiguration.__start_option_1()
         if args[1]: SystemConfiguration.__start_option_2()
         if args[2]: SystemConfiguration.__start_option_3()
-        if args[4]: GraphicDrivers.build()
+        if args[3]: GraphicDrivers.build()
 
         Daemons.enable_all_daemons()
         PatchSystemBugs.enable_all_patches()
