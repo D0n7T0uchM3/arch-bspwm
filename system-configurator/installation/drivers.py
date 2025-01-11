@@ -4,6 +4,7 @@ import warnings
 
 from logger import Logger, LoggerStatus
 
+logger = Logger()
 
 class GraphicDrivers:
     """

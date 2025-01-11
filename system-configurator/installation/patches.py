@@ -4,7 +4,6 @@ from typing import List
 from logger import Logger, LoggerStatus
 
 logger = Logger()
-loggerstatus = LoggerStatus()
 
 class PatchSystemBugs:
     @staticmethod
