@@ -3,6 +3,7 @@ from typing import List
 
 from logger import Logger, LoggerStatus
 
+logger = Logger()
 
 class Daemons:
     @staticmethod
@@ -41,12 +42,12 @@ class Daemons:
         """
 
         try:
-            Logger.add_record(f"[+] {action_description}", status=LoggerStatus.SUCCESS)
+            logger.add_record(f"[+] {action_description}", status=LoggerStatus.SUCCESS)
             result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            Logger.add_record(f"Output: {result.stdout.strip()}", status=LoggerStatus.SUCCESS)
+            logger.add_record(f"Output: {result.stdout.strip()}", status=LoggerStatus.SUCCESS)
         except subprocess.CalledProcessError as e:
-            Logger.add_record(f"Error while {action_description.lower()}: {e.stderr.strip()}",
+            logger.add_record(f"Error while {action_description.lower()}: {e.stderr.strip()}",
                               status=LoggerStatus.FAILURE)
         except Exception as e:
-            Logger.add_record(f"Unexpected error while {action_description.lower()}: {str(e)}",
+            logger.add_record(f"Unexpected error while {action_description.lower()}: {str(e)}",
                               status=LoggerStatus.FAILURE)

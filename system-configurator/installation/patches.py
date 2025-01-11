@@ -3,6 +3,8 @@ from typing import List
 
 from logger import Logger, LoggerStatus
 
+logger = Logger()
+loggerstatus = LoggerStatus()
 
 class PatchSystemBugs:
     @staticmethod
@@ -47,15 +49,15 @@ class PatchSystemBugs:
         :param description: A description of the action being performed.
         """
         try:
-            Logger.add_record(f"[+] {description}", LoggerStatus.SUCCESS)
+            logger.add_record(f"[+] {description}", LoggerStatus.SUCCESS)
             result = subprocess.run(
                 command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
             )
             if result.stdout:
-                Logger.add_record(f"Output: {result.stdout.strip()}", LoggerStatus.SUCCESS)
+                logger.add_record(f"Output: {result.stdout.strip()}", LoggerStatus.SUCCESS)
             if result.stderr:
-                Logger.add_record(f"Error: {result.stderr.strip()}", LoggerStatus.FAILURE)
+                logger.add_record(f"Error: {result.stderr.strip()}", LoggerStatus.FAILURE)
         except subprocess.CalledProcessError as e:
-            Logger.add_record(f"Failed to {description.lower()}: {e.stderr.strip()}", LoggerStatus.FAILURE)
+            logger.add_record(f"Failed to {description.lower()}: {e.stderr.strip()}", LoggerStatus.FAILURE)
         except Exception as e:
-            Logger.add_record(f"Unexpected error during {description.lower()}: {str(e)}", LoggerStatus.FAILURE)
+            logger.add_record(f"Unexpected error during {description.lower()}: {str(e)}", LoggerStatus.FAILURE)

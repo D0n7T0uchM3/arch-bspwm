@@ -23,7 +23,7 @@ class GraphicDrivers:
         """
         Prepares multilib repository and installs hybrid graphic drivers.
         """
-        Logger.add_record("GraphicDrivers.build() is deprecated and will be removed soon.", LoggerStatus.FAILURE)
+        logger.add_record("GraphicDrivers.build() is deprecated and will be removed soon.", LoggerStatus.FAILURE)
         GraphicDrivers.__prepare_multilib()
         GraphicDrivers.__update_multilib_repo()
         GraphicDrivers.__install_hybrid_drivers()
@@ -33,7 +33,7 @@ class GraphicDrivers:
         """
         Installs Nvidia and Intel drivers along with necessary Mesa packages.
         """
-        Logger.add_record("[+] Installing Nvidia & Intel Drivers", status=LoggerStatus.SUCCESS)
+        logger.add_record("[+] Installing Nvidia & Intel Drivers", status=LoggerStatus.SUCCESS)
         commands = [
             ["sudo", "pacman", "-S", "--noconfirm", "mesa"],
             ["sudo", "pacman", "-S", "--noconfirm", "lib32-mesa"],
@@ -46,7 +46,7 @@ class GraphicDrivers:
         """
         Enables the multilib repository in pacman.conf.
         """
-        Logger.add_record("[+] Preparing Multilib Repository", status=LoggerStatus.SUCCESS)
+        logger.add_record("[+] Preparing Multilib Repository", status=LoggerStatus.SUCCESS)
         commands = [
             ["sudo", "sed", "-i", "s/^#\\[multilib\\]/[multilib]/", "/etc/pacman.conf"],
             ["sudo", "sed", "-i", "/^\\[multilib\\]$/,/^\\[/ s/^#\\(Include = /etc/pacman.d/mirrorlist\\)/\\1/", "/etc/pacman.conf"]
@@ -58,7 +58,7 @@ class GraphicDrivers:
         """
         Updates the multilib repository.
         """
-        Logger.add_record("[+] Updating Multilib Repository", status=LoggerStatus.SUCCESS)
+        logger.add_record("[+] Updating Multilib Repository", status=LoggerStatus.SUCCESS)
         commands = [
             ["sudo", "pacman", "-Sl", "multilib"],
             ["sudo", "pacman", "-Sy", "--noconfirm"]
@@ -75,7 +75,7 @@ class GraphicDrivers:
         """
         for command in commands:
             try:
-                Logger.add_record(f"[+] {action_description}: {' '.join(command)}", LoggerStatus.SUCCESS)
+                logger.add_record(f"[+] {action_description}: {' '.join(command)}", LoggerStatus.SUCCESS)
                 result = subprocess.run(
                     command,
                     check=True,
@@ -84,16 +84,16 @@ class GraphicDrivers:
                     text=True
                 )
                 if result.stdout:
-                    Logger.add_record(f"Output: {result.stdout.strip()}", LoggerStatus.SUCCESS)
+                    logger.add_record(f"Output: {result.stdout.strip()}", LoggerStatus.SUCCESS)
                 if result.stderr:
-                    Logger.add_record(f"Error: {result.stderr.strip()}", LoggerStatus.FAILURE)
+                    logger.add_record(f"Error: {result.stderr.strip()}", LoggerStatus.FAILURE)
             except subprocess.CalledProcessError as e:
-                Logger.add_record(
+                logger.add_record(
                     f"Failed to {action_description.lower()}: {e.stderr.strip()}",
                     LoggerStatus.FAILURE
                 )
             except Exception as e:
-                Logger.add_record(
+                logger.add_record(
                     f"Unexpected error during {action_description.lower()}: {str(e)}",
                     LoggerStatus.FAILURE
                 )
