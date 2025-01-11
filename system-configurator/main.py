@@ -3,7 +3,7 @@ from logger import Logger, LoggerStatus
 
 
 def main():
-    logger = Logger()  # Создаем экземпляр Logger
+    logger = Logger()
 
     try:
         logger.add_record("Starting User Interface", status=LoggerStatus.SUCCESS)

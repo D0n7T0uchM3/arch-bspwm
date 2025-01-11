@@ -191,7 +191,7 @@ PACKAGES = [
     "ipython",
     "cloc",
     "cava",
-    "i3lock-color",
+    "betterlockscreen",
     "ptpython",
     "evince",
     "gnome-calculator",

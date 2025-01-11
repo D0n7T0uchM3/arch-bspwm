@@ -21,5 +21,3 @@ print_colored_text "$purple_color" "   |_|   |_| \___/|_|  |_| |____/ \___/|___|
 
 # Use orange for version and social links
 print_colored_text "$orange_color" "Version: 1.0"
-print_colored_text "$orange_color" "inst: https://www.instagram.com/tyom_the_raccoon"
-print_colored_text "$orange_color" "tg: https://t.me/CuteRaccoon"
