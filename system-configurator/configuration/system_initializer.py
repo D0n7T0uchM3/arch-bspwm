@@ -33,7 +33,6 @@ class SystemConfiguration:
         if args[0]: SystemConfiguration.__start_option_1()
         if args[1]: SystemConfiguration.__start_option_2()
         if args[2]: SystemConfiguration.__start_option_3()
-        if args[3]: SystemConfiguration.__start_option_4()
         if args[4]: GraphicDrivers.build()
 
         Daemons.enable_all_daemons()
@@ -52,15 +51,8 @@ class SystemConfiguration:
     @staticmethod
     def __start_option_3():
         AurBuilder.build()
-        SystemConfiguration.install_packages(packages.BASE_PACKAGES)
-        SystemConfiguration.install_packages(packages.AUR_PACKAGES, aur=True)
+        SystemConfiguration.install_packages(packages.PACKAGES)
         logger.add_record("[+] Installed BSPWM Dependencies", status=LoggerStatus.SUCCESS)
-
-    @staticmethod
-    def __start_option_4():
-        SystemConfiguration.install_packages(packages.DEV_PACKAGES)
-        SystemConfiguration.install_packages(packages.GNOME_OFFICIAL_TOOLS)
-        logger.add_record("[+] Installed Dev Dependencies", status=LoggerStatus.SUCCESS)
 
     @staticmethod
     def __create_default_folders():

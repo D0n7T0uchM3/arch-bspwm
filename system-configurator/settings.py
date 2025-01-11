@@ -33,7 +33,6 @@ class UserInterface:
             "Install all dotfiles?",
             "Update Arch DataBase?",
             "Install BSPWM Dependencies?",
-            "Install Dev Dependencies?",
             "Install Nvidia & Intel Drivers?"
         ]
 
