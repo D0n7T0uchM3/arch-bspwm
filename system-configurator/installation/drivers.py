@@ -76,7 +76,7 @@ class GraphicDrivers:
         """
         for command in commands:
             try:
-                logger.add_record(f"[+] {action_description}: {' '.join(command)}", LoggerStatus.SUCCESS)
+                logger.add_record(f"[+] {action_description}: {' '.join(command)}", status=LoggerStatus.SUCCESS)
                 result = subprocess.run(
                     command,
                     check=True,
@@ -85,16 +85,16 @@ class GraphicDrivers:
                     text=True
                 )
                 if result.stdout:
-                    logger.add_record(f"Output: {result.stdout.strip()}", LoggerStatus.SUCCESS)
+                    logger.add_record(f"Output: {result.stdout.strip()}", status=LoggerStatus.SUCCESS)
                 if result.stderr:
-                    logger.add_record(f"Error: {result.stderr.strip()}", LoggerStatus.FAILURE)
+                    logger.add_record(f"Error: {result.stderr.strip()}", status=LoggerStatus.FAILURE)
             except subprocess.CalledProcessError as e:
                 logger.add_record(
                     f"Failed to {action_description.lower()}: {e.stderr.strip()}",
-                    LoggerStatus.FAILURE
+                    status=LoggerStatus.FAILURE
                 )
             except Exception as e:
                 logger.add_record(
                     f"Unexpected error during {action_description.lower()}: {str(e)}",
-                    LoggerStatus.FAILURE
+                    status=LoggerStatus.FAILURE
                 )
