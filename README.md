@@ -30,7 +30,9 @@
 ```bash
 git clone https://github.com/ваш-юзернейм/arch-bspwm.git
 cd arch-bspwm
+```
 
 2. Запустить файл инициализации билда
 ```
 python3 system-configurator/main.py
+```
