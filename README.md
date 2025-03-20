@@ -28,7 +28,7 @@
 
 1. Клонировать репозиторий:
 ```bash
-git clone https://github.com/ваш-юзернейм/arch-bspwm.git
+git clone https://github.com/D0n7T0uchM3/arch-bspwm.git
 cd arch-bspwm
 ```
 
