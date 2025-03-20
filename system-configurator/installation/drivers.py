@@ -1,100 +1,113 @@
-import subprocess
-from typing import List
-import warnings
-
+from installation_tools import Executer
+import sys
+import os
 from logger import Logger, LoggerStatus
 
 logger = Logger()
 
 class GraphicDrivers:
-    """
-    Deprecated: This class will be removed in future releases.
-    Use the new GraphicsManager class instead.
-    """
     def __init__(self):
-        warnings.warn(
-            "GraphicDrivers is deprecated and will be removed in future releases. "
-            "Use GraphicsManager instead.",
-            DeprecationWarning,
-            stacklevel=2
+        self._check_root_privileges()
+        logger.add_record("Initializing graphic drivers installation...", status=LoggerStatus.SUCCESS)
+
+    def _check_root_privileges(self):
+        if os.getuid() != 0:
+            logger.add_record("This script requires root privileges. Please run with sudo.", LoggerStatus.FAILURE)
+            sys.exit(1)
+
+    def install(self):
+        """Main entry point for driver installation"""
+        try:
+            self._enable_multilib()
+            self._update_repositories()
+            self._install_drivers()
+            self._post_install_checks()
+        except Exception as e:
+            logger.add_record(f"Installation failed: {str(e)}", LoggerStatus.FAILURE)
+            sys.exit(1)
+
+    def _enable_multilib(self):
+        """Safely enables multilib repository"""
+        logger.add_record("[1/4] Configuring multilib repository...", LoggerStatus.SUCCESS)
+        
+        try:
+            with open("/etc/pacman.conf", "r+") as f:
+                lines = f.readlines()
+                f.seek(0)
+                
+                multilib_active = False
+                changed = False
+                
+                for line in lines:
+                    if line.strip().startswith("#[multilib]"):
+                        f.write(line.lstrip("#"))
+                        changed = True
+                        multilib_active = True
+                    elif multilib_active and line.strip().startswith("#Include"):
+                        f.write(line.lstrip("#"))
+                        changed = True
+                        multilib_active = False
+                    else:
+                        f.write(line)
+                
+                f.truncate()
+                
+                if changed:
+                    logger.add_record("Multilib repository successfully enabled", LoggerStatus.SUCCESS)
+                else:
+                    logger.add_record("Multilib was already active", LoggerStatus.SUCCESS)
+                    
+        except Exception as e:
+            logger.add_record(f"Failed to configure multilib: {str(e)}", LoggerStatus.FAILURE)
+            raise
+
+    def _update_repositories(self):
+        """Refresh package databases"""
+        logger.add_record("[2/4] Updating package databases...", LoggerStatus.SUCCESS)
+        Executer.execute_command(["pacman", "-Syy"], "Repository update")
+
+    def _install_drivers(self):
+        """Install required driver packages"""
+        logger.add_record("[3/4] Installing drivers...", LoggerStatus.SUCCESS)
+        
+        packages = [
+            # 64-bit
+            "mesa", 
+            "nvidia", 
+            "nvidia-utils",
+            "xf86-video-intel", 
+            "vulkan-intel",
+            "optimus-manager",
+
+            # 32-bit (multilib) - for 32-bit systems only
+            # "lib32-mesa",          
+            # "lib32-nvidia-utils",  
+            # "lib32-vulkan-intel"
+        ]
+        
+        Executer.execute_command(
+            ["pacman", "-S", "--needed", "--noconfirm"] + packages,
+            "Driver packages installation"
+        )
+        
+        # Enable optimus-manager service
+        Executer.execute_command(
+            ["systemctl", "enable", "optimus-manager"],
+            "Enable optimus-manager service"
         )
 
-    @staticmethod
-    def build():
-        """
-        Prepares multilib repository and installs hybrid graphic drivers.
-        """
-        logger.add_record("GraphicDrivers.build() is deprecated and will be removed soon.", status=LoggerStatus.FAILURE)
-        GraphicDrivers.__prepare_multilib()
-        GraphicDrivers.__update_multilib_repo()
-        GraphicDrivers.__install_hybrid_drivers()
-
-    @staticmethod
-    def __install_hybrid_drivers():
-        """
-        Installs Nvidia and Intel drivers along with necessary Mesa packages.
-        """
-        logger.add_record("[+] Installing Nvidia & Intel Drivers", status=LoggerStatus.SUCCESS)
-        commands = [
-            ["sudo", "pacman", "-S", "--noconfirm", "mesa"],
-            ["sudo", "pacman", "-S", "--noconfirm", "lib32-mesa"],
-            ["sudo", "pacman", "-S", "--noconfirm", "xf86-video-nouveau", "xf86-video-intel", "vulkan-intel"]
-        ]
-        GraphicDrivers.__execute_commands(commands, "Installing hybrid drivers")
-
-    @staticmethod
-    def __prepare_multilib():
-        """
-        Enables the multilib repository in pacman.conf.
-        """
-        logger.add_record("[+] Preparing Multilib Repository", status=LoggerStatus.SUCCESS)
-        commands = [
-            ["sudo", "sed", "-i", "s/^#\\[multilib\\]/[multilib]/", "/etc/pacman.conf"],
-            ["sudo", "sed", "-i", "/^\\[multilib\\]$/,/^\\[/ s/^#\\(Include = /etc/pacman.d/mirrorlist\\)/\\1/", "/etc/pacman.conf"]
-        ]
-        GraphicDrivers.__execute_commands(commands, "Preparing multilib repository")
-
-    @staticmethod
-    def __update_multilib_repo():
-        """
-        Updates the multilib repository.
-        """
-        logger.add_record("[+] Updating Multilib Repository", status=LoggerStatus.SUCCESS)
-        commands = [
-            ["sudo", "pacman", "-Sl", "multilib"],
-            ["sudo", "pacman", "-Sy", "--noconfirm"]
-        ]
-        GraphicDrivers.__execute_commands(commands, "Updating multilib repository")
-
-    @staticmethod
-    def __execute_commands(commands: List[List[str]], action_description: str):
-        """
-        Executes a list of system commands with logging and error handling.
-
-        :param commands: List of commands to execute, each command is a list of arguments.
-        :param action_description: Description of the action being performed.
-        """
-        for command in commands:
-            try:
-                logger.add_record(f"[+] {action_description}: {' '.join(command)}", status=LoggerStatus.SUCCESS)
-                result = subprocess.run(
-                    command,
-                    check=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True
-                )
-                if result.stdout:
-                    logger.add_record(f"Output: {result.stdout.strip()}", status=LoggerStatus.SUCCESS)
-                if result.stderr:
-                    logger.add_record(f"Error: {result.stderr.strip()}", status=LoggerStatus.FAILURE)
-            except subprocess.CalledProcessError as e:
-                logger.add_record(
-                    f"Failed to {action_description.lower()}: {e.stderr.strip()}",
-                    status=LoggerStatus.FAILURE
-                )
-            except Exception as e:
-                logger.add_record(
-                    f"Unexpected error during {action_description.lower()}: {str(e)}",
-                    status=LoggerStatus.FAILURE
-                )
+    def _post_install_checks(self):
+        """Verify installation success"""
+        logger.add_record("[4/4] Running post-install checks...", LoggerStatus.SUCCESS)
+        
+        # Check NVIDIA driver
+        Executer.execute_command(
+            ["nvidia-smi"],
+            "NVIDIA driver verification"
+        )
+        
+        # Check Intel driver
+        Executer.execute_command(
+            ["glxinfo", "-B"],
+            "Intel driver verification"
+        )
