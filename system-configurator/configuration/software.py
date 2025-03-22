@@ -1,5 +1,6 @@
 import os
 
+from installation.installation_tools import Executer
 from logger import Logger, LoggerStatus
 
 logger = Logger()
@@ -16,9 +17,9 @@ class AurBuilder:
         if AurBuilder.check_repo_exists(clone_dir):
             logger.add_record(f"[+] yay repository already exists in {clone_dir}", status=LoggerStatus.SUCCESS)
         else:
-            AurBuilder.execute_command(["git", "-C", "/tmp", "clone", aur_repo_url], "Cloning yay repository")
+            Executer.execute_command(["git", "-C", "/tmp", "clone", aur_repo_url], "Cloning yay repository")
 
-        AurBuilder.execute_command(["makepkg", "-si"], "Installing yay", cwd=clone_dir)
+        Executer.execute_command(["makepkg", "-si"], "Installing yay", cwd=clone_dir)
 
     @staticmethod
     def check_repo_exists(clone_dir: str) -> bool:
