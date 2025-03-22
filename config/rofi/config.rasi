@@ -1,5 +1,5 @@
 configuration{
-    modi: "run,drun,window";
+    modi: "run,drun,window,ssh";
     lines: 5;
     font: "JetBrainsMono Nerd Font 14";
     show-icons: true;
@@ -16,7 +16,7 @@ configuration{
     sidebar-mode: true;
 }
 
-@theme "catppuccin"
+@theme "catpuccin.rasi"
 
 element-text, element-icon , mode-switcher {
     background-color: inherit;
@@ -93,7 +93,7 @@ button {
     padding: 10px;
     background-color: @bg-col-light;
     text-color: @grey;
-    vertical-align: 0.5;
+    vertical-align: 0.5; 
     horizontal-align: 0.5;
 }
 

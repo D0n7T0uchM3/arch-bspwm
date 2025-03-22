@@ -13,6 +13,7 @@ class PatchSystemBugs:
         PatchSystemBugs.__fix_xterm_error_in_thunar()
         PatchSystemBugs.__make_zsh_the_default()
         PatchSystemBugs.__assign_permissions_to_configs()
+        PatchSystemBugs.__yazi_set_catppuccin_theme()
 
     @staticmethod
     def __fix_xterm_error_in_thunar():
@@ -35,5 +36,13 @@ class PatchSystemBugs:
         """
         Recursively assigns permissions (700) to all files in ~/.config.
         """
-        command = ["sudo", "chmod", "-R", "700", "~/.config/*"]
+        command = ["sudocchmod", "-R", "700", "~/.config/*"]
         Executer.execute_command(command, "Assigning permissions to config files")
+
+    @staticmethod
+    def __yazi_set_catppuccin_theme():
+        """
+        Sets yazi theme.
+        """
+        command = ["ya", "pack", "-a", "yazi-rs/flavors:catppuccin-macchiato"]
+        Executer.execute_command(command, "Changing yazi theme")

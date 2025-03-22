@@ -3,14 +3,10 @@ super + r
     pkill -USR1 -x sxhkd; notify-send 'sxhkd' 'Config reloaded!'
 
 # Launch Terminal
-super + q
+super + t
     alacritty
 
-# Set random wallpaper
-super + w
-	sh $HOME/bin/random_wallpaper
-
-# Launch Rofi Menu
+# Launch Rofi Menus
 super + {d,x,i,b}
     {rofi -show drun, \
     sh $HOME/bin/powermenu, \

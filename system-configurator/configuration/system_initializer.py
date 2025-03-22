@@ -55,7 +55,6 @@ class SystemConfiguration:
         Executer.execute_command(["cp", "../Xresources", "~/.Xresources"], f"Xresources folder copying")
         Executer.execute_command(["cp", "../gtkrc-2.0", "~/.gtkrc-2.0"], f"gtkrc-2.0 folder copying")
         Executer.execute_command(["cp", "-r", "../local", "~/.local"], f"local folder copying")
-        Executer.execute_command(["cp", "-r", "../themes", "~/.themes"], f"themes folder copying")
         Executer.execute_command(["cp", "../xinitrc", "~/.xinitrc"], f"xinitrc folder copying")
         Executer.execute_command(["cp", "-r", "../bin/", "~/"], f"bin folder copying") # TODO if it is bin or .bin
         logger.add_record("[+] Copy Dotfiles & GTK", status=LoggerStatus.SUCCESS)
