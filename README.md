@@ -1,6 +1,7 @@
 # ArchBSPWM - Минималистичная сборка на BSPWM 🐧
 
-![Demo Screenshot](./screenshots/main.png)
+![Demo Screenshot](./screenshots/screenshot1.png)
+![Demo Screenshot](./screenshots/screenshot2.png)
 
 Персонализированная сборка Arch Linux с использованием тайлового оконного менеджера BSPWM. Легковесная, быстрая и эстетичная конфигурация.
 
@@ -12,15 +13,14 @@
   - Picom (композитор с эффектами)
   
 - **Внешний вид**:
-  - Тема: 
-  - Иконки: 
-  - Шрифты:
+  - Тема: catppuccin-macchiato
+  - Иконки: Papirus [GTK2/3/4]
+  - Шрифты: Rubik Medium, IBM Plex Mono
 
 - **Дополнительно**:
   - 🚀 Rofi (меню запуска)
   - 🔔 Dunst (уведомления)
   - ⌨️ sxhkd (горячие клавиши)
-  - 🖥️ Поддержка мультимониторной конфигурации
 
 ## 📦 Установка
 

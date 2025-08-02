@@ -46,8 +46,8 @@ class SystemConfiguration:
     @staticmethod
     def __create_default_folders():
         default_folders = "~/Videos ~/Documents ~/Downloads ~/Music ~/Desktop"
-        Executer.execute_command(["mkdir", "-p", "~/.config", default_folders], f"Creating all default folders")
-        Executer.execute_command(["cp", "-r", "../Images", "~/"], f"Images copying")
+        Executer.execute_command(["mkdir", "-p", default_folders], f"Creating all default folders")
+        Executer.execute_command(["cp", "-r", "../Imagess", "~/"], f"Images copying")
         logger.add_record("[+] Create default directories", status=LoggerStatus.SUCCESS)
 
     @staticmethod
@@ -56,5 +56,6 @@ class SystemConfiguration:
         Executer.execute_command(["cp", "../gtkrc-2.0", "~/.gtkrc-2.0"], f"gtkrc-2.0 folder copying")
         Executer.execute_command(["cp", "-r", "../local", "~/.local"], f"local folder copying")
         Executer.execute_command(["cp", "../xinitrc", "~/.xinitrc"], f"xinitrc folder copying")
-        Executer.execute_command(["cp", "-r", "../bin/", "~/"], f"bin folder copying") # TODO if it is bin or .bin
+        Executer.execute_command(["cp", "-r", "../.bin/", "~/"], f".bin folder copying")
+        Executer.execute_command(["cp", "-r", "../.config/", "~/"], f".config folder copying")
         logger.add_record("[+] Copy Dotfiles & GTK", status=LoggerStatus.SUCCESS)
