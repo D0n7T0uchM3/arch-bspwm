@@ -25,10 +25,13 @@ class SystemConfiguration:
     @staticmethod
     def start(*args):
         logger.add_record(f"[+] Starting assembly. Options {args}", status=LoggerStatus.SUCCESS)
+        
+        graphic_drivers = GraphicDrivers()
+        
         if args[0]: SystemConfiguration.__start_option_1()
         if args[1]: SystemConfiguration.__start_option_2()
         if args[2]: SystemConfiguration.__start_option_3()
-        if args[3]: GraphicDrivers.install()
+        if args[3]: graphic_drivers.install()
 
         Daemons.enable_all_daemons()
         PatchSystemBugs.enable_all_patches()
