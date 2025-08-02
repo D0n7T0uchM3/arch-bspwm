@@ -12,7 +12,7 @@ class GraphicDrivers:
 
     def _check_root_privileges(self):
         if os.getuid() != 0:
-            logger.add_record("This script requires root privileges. Please run with sudo.", LoggerStatus.FAILURE)
+            logger.add_record("This script requires root privileges. Please run with sudo.", status=LoggerStatus.FAILURE)
             sys.exit(1)
 
     def install(self):
@@ -23,12 +23,12 @@ class GraphicDrivers:
             self._install_drivers()
             self._post_install_checks()
         except Exception as e:
-            logger.add_record(f"Installation failed: {str(e)}", LoggerStatus.FAILURE)
+            logger.add_record(f"Installation failed: {str(e)}", status=LoggerStatus.FAILURE) 
             sys.exit(1)
 
     def _enable_multilib(self):
         """Safely enables multilib repository"""
-        logger.add_record("[1/4] Configuring multilib repository...", LoggerStatus.SUCCESS)
+        logger.add_record("[1/4] Configuring multilib repository...", status=LoggerStatus.SUCCESS)
         
         try:
             with open("/etc/pacman.conf", "r+") as f:
@@ -53,22 +53,22 @@ class GraphicDrivers:
                 f.truncate()
                 
                 if changed:
-                    logger.add_record("Multilib repository successfully enabled", LoggerStatus.SUCCESS)
+                    logger.add_record("Multilib repository successfully enabled", status=LoggerStatus.SUCCESS)
                 else:
-                    logger.add_record("Multilib was already active", LoggerStatus.SUCCESS)
+                    logger.add_record("Multilib was already active", status=LoggerStatus.SUCCESS)
                     
         except Exception as e:
-            logger.add_record(f"Failed to configure multilib: {str(e)}", LoggerStatus.FAILURE)
+            logger.add_record(f"Failed to configure multilib: {str(e)}", status=LoggerStatus.FAILURE)
             raise
 
     def _update_repositories(self):
         """Refresh package databases"""
-        logger.add_record("[2/4] Updating package databases...", LoggerStatus.SUCCESS)
+        logger.add_record("[2/4] Updating package databases...", status=LoggerStatus.SUCCESS)
         Executer.execute_command(["pacman", "-Syy"], "Repository update")
 
     def _install_drivers(self):
         """Install required driver packages"""
-        logger.add_record("[3/4] Installing drivers...", LoggerStatus.SUCCESS)
+        logger.add_record("[3/4] Installing drivers...", status=LoggerStatus.SUCCESS)
         
         packages = [
             # 64-bit
@@ -98,7 +98,7 @@ class GraphicDrivers:
 
     def _post_install_checks(self):
         """Verify installation success"""
-        logger.add_record("[4/4] Running post-install checks...", LoggerStatus.SUCCESS)
+        logger.add_record("[4/4] Running post-install checks...", status=LoggerStatus.SUCCESS)
         
         # Check NVIDIA driver
         Executer.execute_command(
