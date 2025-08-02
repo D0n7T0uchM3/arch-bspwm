@@ -1,5 +1,6 @@
 from logger import Logger, LoggerStatus
 from configuration.software import AurBuilder
+import os
 
 from installation import packages
 from installation.installation_tools import Executer
@@ -45,17 +46,46 @@ class SystemConfiguration:
 
     @staticmethod
     def __create_default_folders():
-        default_folders = "~/Videos ~/Documents ~/Downloads ~/Music ~/Desktop"
-        Executer.execute_command(["mkdir", "-p", default_folders], f"Creating all default folders")
-        Executer.execute_command(["cp", "-r", "../Imagess", "~/"], f"Images copying")
-        logger.add_record("[+] Create default directories", status=LoggerStatus.SUCCESS)
+        try:
+            home_dir = os.path.expanduser("~")
+            default_folders = ["Videos", "Documents", "Downloads", "Music", "Desktop"]
+            
+            for folder in default_folders:
+                full_path = os.path.join(home_dir, folder)
+                Executer.execute_command(["mkdir", "-p", full_path], f"Creating folder: {folder}")
+            
+            source_images = os.path.join(os.path.dirname(__file__), "../Images")
+            Executer.execute_command(["cp", "-r", source_images, home_dir], "Copying Images folder")
+            
+            logger.add_record("[+] Created default directories", status=LoggerStatus.SUCCESS)
+        except Exception as e:
+            logger.add_record(f"[-] Failed to create default directories: {str(e)}", status=LoggerStatus.ERROR)
+            raise
 
     @staticmethod
     def __copy_bspwm_dotfiles():
-        Executer.execute_command(["cp", "../Xresources", "~/.Xresources"], f"Xresources folder copying")
-        Executer.execute_command(["cp", "../gtkrc-2.0", "~/.gtkrc-2.0"], f"gtkrc-2.0 folder copying")
-        Executer.execute_command(["cp", "-r", "../local", "~/.local"], f"local folder copying")
-        Executer.execute_command(["cp", "../xinitrc", "~/.xinitrc"], f"xinitrc folder copying")
-        Executer.execute_command(["cp", "-r", "../.bin/", "~/"], f".bin folder copying")
-        Executer.execute_command(["cp", "-r", "../.config/", "~/"], f".config folder copying")
-        logger.add_record("[+] Copy Dotfiles & GTK", status=LoggerStatus.SUCCESS)
+        try:
+            home_dir = os.path.expanduser("~")
+            items_to_copy = [
+                ("../Xresources", ".Xresources"),
+                ("../gtkrc-2.0", ".gtkrc-2.0"),
+                ("../local", ".local"),
+                ("../xinitrc", ".xinitrc"),
+                ("../.bin/", ".bin"),
+                ("../.config/", ".config")
+            ]
+            
+            for source, dest_name in items_to_copy:
+                source_path = os.path.join(os.path.dirname(__file__), source)
+                dest_path = os.path.join(home_dir, dest_name)
+                
+                recursive = True if source.endswith('/') or os.path.isdir(source_path) else False
+                cmd = ["cp", "-r"] if recursive else ["cp"]
+                
+                Executer.execute_command(cmd + [source_path, dest_path], 
+                                    f"Copying {source} to {dest_path}")
+            
+            logger.add_record("[+] Copied Dotfiles & GTK", status=LoggerStatus.SUCCESS)
+        except Exception as e:
+            logger.add_record(f"[-] Failed to copy dotfiles: {str(e)}", status=LoggerStatus.ERROR)
+            raise
