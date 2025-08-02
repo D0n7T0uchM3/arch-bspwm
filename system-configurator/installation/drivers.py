@@ -86,7 +86,7 @@ class GraphicDrivers:
         ]
         
         Executer.execute_command(
-            ["pacman", "-S", "--needed", "--noconfirm"] + packages,
+            ["yay", "-S", "--needed", "--noconfirm"] + packages,
             "Driver packages installation"
         )
         
