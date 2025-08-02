@@ -69,21 +69,19 @@ class SystemConfiguration:
             items_to_copy = [
                 ("../Xresources", ".Xresources"),
                 ("../gtkrc-2.0", ".gtkrc-2.0"),
-                ("../local", ".local"),
                 ("../xinitrc", ".xinitrc"),
                 ("../.bin/", ".bin"),
                 ("../.config/", ".config")
             ]
             
-            for source, dest_name in items_to_copy:
-                source_path = os.path.join(os.path.dirname(__file__), source)
+            for source_path, dest_name in items_to_copy:
                 dest_path = os.path.join(home_dir, dest_name)
                 
-                recursive = True if source.endswith('/') or os.path.isdir(source_path) else False
+                recursive = True if source_path.endswith('/') or os.path.isdir(source_path) else False
                 cmd = ["cp", "-r"] if recursive else ["cp"]
                 
                 Executer.execute_command(cmd + [source_path, dest_path], 
-                                    f"Copying {source} to {dest_path}")
+                                    f"Copying {source_path} to {dest_path}")
             
             logger.add_record("[+] Copied Dotfiles & GTK", status=LoggerStatus.SUCCESS)
         except Exception as e:
