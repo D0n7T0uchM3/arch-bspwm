@@ -54,7 +54,7 @@ class SystemConfiguration:
                 full_path = os.path.join(home_dir, folder)
                 Executer.execute_command(["mkdir", "-p", full_path], f"Creating folder: {folder}")
             
-            source_images = os.path.join(os.path.dirname(__file__), "../Images")
+            source_images = "../Images"
             Executer.execute_command(["cp", "-r", source_images, home_dir], "Copying Images folder")
             
             logger.add_record("[+] Created default directories", status=LoggerStatus.SUCCESS)
