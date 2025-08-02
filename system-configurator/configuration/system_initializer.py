@@ -12,11 +12,15 @@ logger = Logger()
 
 class SystemConfiguration:
     @staticmethod
-    def install_packages(package_names: list, aur: bool = False):
-        installer = "yay -S --noconfirm"
+    def install_packages(package_names: list):
+        installer = ["yay", "-S", "--noconfirm"]
 
         for package in package_names:
-            Executer.execute_command([installer, package], f"Installation of {package}")
+            command = installer + [package]
+            Executer.execute_command(
+                command=command,
+                action_description=f"Installation of {package}"
+            )
 
     @staticmethod
     def start(*args):
