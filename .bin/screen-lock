@@ -10,13 +10,12 @@ param=("--inside-color=ffffff1c" "--ring-color=ffffff3e" \
         "--ringwrong-color=00000055" "--insidewrong-color=0000001c" \
         "--verif-color=00000000" "--wrong-color=ed8796" "--time-color=ebec60" \
         "--date-color=5ca4dc" "--layout-color=ffffff" "--timeoutline-color=000000" \
-        "--dateoutline-color=000000" "--wrongoutline-color=000000") 
+        "--dateoutline-color=000000" "--wrongoutline-color=000000")
 
 icon="$HOME/Images/system/lock.png"
 
 setxkbmap "us"
 
-# convert "$image" -brightness-contrast -50x0 "$image"
 convert "$image" -modulate 70,50,100 "$image"
 
 i3lock_cmd=(i3lock -i "$image" --date-str="%A, %m %Y" --date-font="Butovo Mono" --date-size=96 --dateoutline-width=5 --clock --time-str="%H %M %S" --time-font="Butovo Mono" --time-size=144 --timeoutline-width=6 --time-pos="ix:iy" --date-pos="tx:ty+140" refresh-rate=1 --bar-indicator --wrongoutline-width=5 --wrong-font="Karmatic Arcade" --wrong-size=256 --wrong-text="EBLAN?" --lock-text="IT IS LOCKED, DUDE…")

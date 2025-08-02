@@ -1,97 +1,75 @@
-# reloads sxhkd configuration:
+# Reload sxhkd
 super + r
     pkill -USR1 -x sxhkd; notify-send 'sxhkd' 'Config reloaded!'
 
-# Launch Terminal
-super + t
+# quit/restart bspwm
+super + ctrl + shift + {q,r}
+    bspc {quit,wm -r}; notify-send 'bspwm' 'Config reloaded!'
+
+# Open terminal (Cmd + Return)
+super + Return
     alacritty
 
-# Launch Rofi Menus
-super + {d,x,i,b}
-    {rofi -show drun, \
-    sh $HOME/bin/powermenu, \
-    sh $HOME/bin/wifimenu, \
-    rofi-bluetooth, \
-    pavucontrol, \
-    telegram-desktop}
+# Spotlight (Cmd + Space)
+ctrl + space
+    rofi -show drun
 
-# Launch Applications
-super + {n}
-	{thunar}
-
-Shift_L + alt
-	BSPC node -t "~"{floating,tiled}
-
-# Volume controls
-XF86Audio{RaiseVolume,LowerVolume,Mute}
-    sh $HOME/bin/volume{ --up, --down, --toggle}
-
-# Brightness controls
-XF86MonBrightness{Up,Down}
-    sh $HOME/bin/brightness{ --up, --down}
-
-# screenshot
-super + shift + s
-    flameshot gui
-
-#
-#
-# BSPWM HOTKEYS
-#
-#
-
-# quit/restart bspwm
-ctrl + shift + {q,r}
-    bspc {quit,wm -r}
-
-# close and kill
-super + c
+# Quit application (Cmd + Q)
+super + q
     bspc node -c
 
-# change language
-super + space
-	sh $HOME/bin/change_language.sh
-
-#
-# state/flags
-#
-
-# set the window state
-super + {t,ctrl + t,f}
-	bspc node -t {tiled,pseudo_tiled,fullscreen}
-
-#
-# focus/swap
-#
+# Run useful apps
+super + {d,x,i,b,p}
+    {rofi -show drun,sh $HOME/.bin/powermenu,sh $HOME/.bin/wifimenu,rofi-bluetooth, pavucontrol}
 
 
-# focus the last node/desktop
-super + {grave,Tab}
-	bspc {node,desktop} -f last
+# Switch workspace (Cmd + 1-9)
+super + {1-9,0}
+    bspc desktop -f '^{1-9,10}'
 
-# send focus window to current desktop
-super + {_,shift + }{1-9,0}
-	bspc {desktop -f,node -d} '^{1-9,10}'
+# Move between desktops (Ctrl + Left/Right)
+super + {Left,Right}
+    bspc desktop -f {prev,next}
 
-#
-# preselect
-#
+# Move window to another workspace (Cmd + ctrl + 1-9)
+super + ctrl + {1-9,0}
+    bspc node -d '^{1-9,10}'
 
-# preselect the ratio
-super + ctrl + {1-9}
-	bspc node -o 0.{1-9}
+# Switch between desktop (Cmd + Tab)
+super + Tab
+    bspc node -f last
 
-# cancel the preselection for the focused node
-super + ctrl + space
-	bspc node -p cancel
+# Window navigation (Cmd + H/J/K/L)
+super + {h,j,k,l}
+    bspc node -f {west,south,north,east}
 
-# cancel the preselection for the focused desktop
-super + ctrl + shift + space
-	bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
+# Move window to another display (Cmd + Option + Arrow)
+super + alt + {Left,Down,Up,Right}
+    bspc node -m {west,south,north,east}
 
-#
-# move/resize
-#
+# Fullscreen (Cmd + Ctrl + F)
+super + ctrl + f
+    bspc node -t fullscreen
+
+# Tile/Pseudo-tile (Cmd + T, Cmd + Option + T)
+super + t
+    bspc node -t tiled
+super + alt + t
+    bspc node -t pseudo_tiled
+
+# Screenshots (Cmd + Shift + 3/4)
+super + shift + 3
+    flameshot full -p ~/Screenshots
+super + shift + 4
+    flameshot gui
+
+# Volume controls (F11/F12 for volume, F10 for mute)
+XF86Audio{RaiseVolume,LowerVolume,Mute}
+    sh $HOME/.bin/volume{ --up, --down, --toggle}
+
+# Brightness controls (F1/F2)
+XF86MonBrightness{Up,Down}
+    sh $HOME/.bin/brightness{ --up, --down}
 
 # Expanding windows
 super + control {h,j,k,l}
@@ -100,10 +78,10 @@ super + control {h,j,k,l}
 super + control + shift + {h,j,k,l}
     bspc node -z {right -10,up +10,down -10,left +10}
 
-# Send the window to another edge of the screen
-super + {_,alt + }{h,j,k,l}
-    bspc node -{f,s} {west,south,north,east}
+#
+# utils
+#
 
-# set the node flags
-super + ctrl + {m,x,y,z}
-	bspc node -g {marked,locked,sticky,private}
+# Set random wallpaper
+super + w
+	sh $HOME/.bin/random_wallpaper
