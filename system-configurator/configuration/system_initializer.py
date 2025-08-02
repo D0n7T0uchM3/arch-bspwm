@@ -13,7 +13,7 @@ logger = Logger()
 class SystemConfiguration:
     @staticmethod
     def install_packages(package_names: list, aur: bool = False):
-        installer = "yay -S --noconfirm" if aur else "sudo pacman -S --noconfirm"
+        installer = "yay -S --noconfirm"
 
         for package in package_names:
             Executer.execute_command([installer, package], f"Installation of {package}")
