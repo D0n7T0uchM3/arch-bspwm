@@ -6,19 +6,35 @@ logout() {
 		# Close it
 		xdotool windowkill "$winid"
 	done
-	# TODO Kill programs
-    #	
 
 	# Quit bspwm
 	bspc quit 1
 }
 
-choice=$(printf "Lock\nLogout\nSuspend\nReboot\nShutdown" | rofi -dmenu -p 'Start  ')
+system_shutdown() {
+	pkill openrgb || true
+	pkill -f 'deepcool-digital-linux'
+	sleep 1
+	openrgb -p ~/.config/OpenRGB/shutdown.orp
+	sleep 2
+	systemctl poweroff 
+}
+
+system_reboot() {
+	pkill openrgb || true
+	pkill -f 'deepcool-digital-linux'
+	sleep 1
+	openrgb -p ~/.config/OpenRGB/shutdown.orp
+	sleep 2
+	systemctl reboot
+}
+
+choice=$(printf "  Lock\n  Logout\n  Suspend\n  Reboot\n  Shutdown" | rofi -dmenu -config ~/.config/rofi/powermenu.rasi)
+
 case "$choice" in
-  Lock) sh $HOME/bin/screen-lock ;;
-  Logout) logout ;;
-  # Logout) pkill -KILL -u "$USER" ;;
-  Suspend) systemctl suspend && sh $HOME/bin/screen-lock ;;
-  Reboot) systemctl reboot ;;
-  Shutdown) systemctl poweroff ;;
+  *Lock) sh $HOME/.bin/screen-lock ;;
+  *Logout) logout ;;
+  *Suspend) systemctl suspend && sh $HOME/.bin/screen-lock ;;
+  *Reboot) system_reboot ;;
+  *Shutdown) system_shutdown ;;
 esac

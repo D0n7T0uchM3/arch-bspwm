@@ -2,7 +2,7 @@ from logger import Logger, LoggerStatus
 from configuration.software import AurBuilder
 import os
 
-from installation import packages
+from installation import packages as pkg
 from installation.installation_tools import Executer
 from installation.drivers import GraphicDrivers
 from installation.patches import PatchSystemBugs
@@ -48,7 +48,8 @@ class SystemConfiguration:
     @staticmethod
     def __start_option_3():
         AurBuilder.build()
-        SystemConfiguration.install_packages(packages.PACKAGES)
+        SystemConfiguration.install_packages(pkg.PACKAGES)
+        SystemConfiguration.install_packages(pkg.AUR_PACKAGES)
         logger.add_record("[+] Installed BSPWM Dependencies", status=LoggerStatus.SUCCESS)
 
     @staticmethod

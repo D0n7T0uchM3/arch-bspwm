@@ -17,7 +17,9 @@ class Daemons:
         services_to_enable = [
             ServiceConfig("NetworkManager", True),
             ServiceConfig("bluetooth.service", True),
-            # TODO: Add usb mount daemon,...
+            ServiceConfig("lightdm.service", False),   # display manager - start on next boot only
+            ServiceConfig("sshd.service", True),
+            ServiceConfig("docker.service", True),
         ]
 
         for service in services_to_enable:
@@ -37,13 +39,11 @@ class Daemons:
             enable: Whether to enable the service to start on boot
             start: Whether to immediately start the service
         """
-        # Determine if sudo is needed based on current user
         sudo_required = os.geteuid() != 0
         base_cmd = ["sudo"] if sudo_required else []
 
         try:
             if enable and start:
-                # Most efficient: single command to enable and start
                 command = base_cmd + ["systemctl", "enable", "--now", service_name]
                 Executer.execute_command(command, f"Enabling and starting {service_name}")
             elif enable:
@@ -57,4 +57,4 @@ class Daemons:
                 
         except Exception as e:
             logger.error(f"Failed to manage service {service_name}: {str(e)}")
-            raise  # Re-raise to allow caller handling if needed
+            raise

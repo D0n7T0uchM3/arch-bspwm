@@ -12,16 +12,19 @@ super + Return
 
 # Spotlight (Cmd + Space)
 ctrl + space
-    rofi -show drun
+    rofi -show drun -config ~/.config/rofi/apps.rasi
 
 # Quit application (Cmd + Q)
 super + q
     bspc node -c
 
 # Run useful apps
-super + {d,x,i,b,p}
-    {rofi -show drun,sh $HOME/.bin/powermenu,sh $HOME/.bin/wifimenu,rofi-bluetooth, pavucontrol}
+super + {t,x,p}
+    {thunar,sh $HOME/.bin/powermenu,pavucontrol}
 
+# Run tui
+super + {i,b,y,d}
+    {alacritty -e impala, alacritty -e bluetui, alacritty -e yazi, alacritty -e lazydocker}
 
 # Switch workspace (Cmd + 1-9)
 super + {1-9,0}
@@ -44,18 +47,15 @@ super + {h,j,k,l}
     bspc node -f {west,south,north,east}
 
 # Move window to another display (Cmd + Option + Arrow)
-super + alt + {Left,Down,Up,Right}
-    bspc node -m {west,south,north,east}
+super + alt + {h,j,k,l}
+    bspc node -s {west,south,north,east}
 
 # Fullscreen (Cmd + Ctrl + F)
-super + ctrl + f
-    bspc node -t fullscreen
+super + alt + f
+    bspc node -t "~"{fullscreen,tiled}
 
-# Tile/Pseudo-tile (Cmd + T, Cmd + Option + T)
-super + t
-    bspc node -t tiled
 super + alt + t
-    bspc node -t pseudo_tiled
+	bspc node -t "~"{floating,tiled}
 
 # Screenshots (Cmd + Shift + 3/4)
 super + shift + 3

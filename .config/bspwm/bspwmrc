@@ -1,13 +1,23 @@
-#! /bin/sh
+#!/bin/sh
 
 # Start sxhkd if it's not already running
-# pgrep -x sxhkd > /dev/null || sxhkd &
+if ! pgrep -x sxhkd > /dev/null; then
+    sxhkd &
+fi
+
+# Keyboard layout
 setxkbmap -layout us,ru -option grp:win_space_toggle
 
 # Start background services
 thunar --daemon &
-pkill udiskie; udiskie -t &
-$HOME/.screenlayout/display.sh &
+pkill udiskie || true
+udiskie -t &
+
+# Screen layout
+"$HOME/.bin/screenlayout.sh" &
+
+# Wait for monitors to be ready before configuring workspaces
+sleep 2
 
 # Configure workspaces
 bspc monitor DP-4 -d 1 2 3 4 5 6
@@ -34,7 +44,7 @@ xsetroot -cursor_name left_ptr
 bspc config gapless_monocle false
 bspc config window_gap 17
 
-# Move and resize floating windows with mouse (Mod4 is Win/Super key)
+# Mouse controls
 bspc config pointer_modifier mod4
 bspc config pointer_action1 move
 bspc config pointer_action2 resize_side
@@ -42,25 +52,57 @@ bspc config pointer_action3 resize_corner
 bspc config split_ratio 0.5
 
 # Load Xresources
-xrdb merge ~/.config/Xresources
+if [ -f "$HOME/.Xresources" ]; then
+    xrdb merge "$HOME/.Xresources"
+fi
 
-# Launch background scripts
-~/.config/bspwm/scripts/launch.sh &
-~/.config/polybar/launch.sh &
+# Launch background scripts with error checking
+if [ -f "$HOME/.config/bspwm/scripts/launch.sh" ]; then
+    "$HOME/.config/bspwm/scripts/launch.sh" &
+fi
+
+if [ -f "$HOME/.config/polybar/launch.sh" ]; then
+    "$HOME/.config/polybar/launch.sh" &
+fi
 
 # Start notification daemon
-dunst -conf $HOME/.config/bspwm/dunstrc &
+if [ -f "$HOME/.config/bspwm/dunstrc" ]; then
+    dunst -conf "$HOME/.config/bspwm/dunstrc" &
+else
+    dunst &
+fi
 
-# Launch battery tracker and color correction
-pkill battery-alert; ~/.bin/battery-alert &
-pgrep -x redshift > /dev/null || redshift &
+# Redshift - start if not running
+if ! pgrep -x redshift > /dev/null; then
+    redshift &
+fi
 
-# Start compositor
-picom --config $HOME/.config/picom/picom.conf &
-
-# Autostart applications
-flameshot &
-openrgb -p $HOME/.openrgb/tyom_old.orp &
+# Start compositor - kill existing instances first
+pkill picom || true
+sleep 1
+if [ -f "$HOME/.config/picom/picom.conf" ]; then
+    picom --config "$HOME/.config/picom/picom.conf" --daemon &
+else
+    picom --daemon &
+fi
 
 # Fix Chrome error
-rm -rf ~/.config/google-chrome/Singleton*
+rm -rf ~/.config/google-chrome/Singleton* 2>/dev/null || true
+
+# Flameshot - kill existing instances and ensure only one runs
+pkill flameshot || true
+sleep 1
+flameshot &
+
+# OpenRGB - kill existing instances and start with config
+pkill openrgb || true
+sleep 1
+openrgb -p ~/.config/OpenRGB/lianli.orp
+
+# Deepcool - kill existing instances and start with config
+pkill deepcool-digital-linux || true
+sleep 1
+"$HOME/.bin/deepcool-digital-linux" &
+
+# Wait for all background processes
+wait
