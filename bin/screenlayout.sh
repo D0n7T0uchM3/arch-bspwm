@@ -1,1 +1,0 @@
-xrandr --primary --mode 1920x1080 --rate 60 --rotate normal

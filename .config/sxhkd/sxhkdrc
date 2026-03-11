@@ -1,0 +1,87 @@
+# Reload sxhkd
+super + r
+    pkill -USR1 -x sxhkd; notify-send 'sxhkd' 'Config reloaded!'
+
+# quit/restart bspwm
+super + ctrl + shift + {q,r}
+    bspc {quit,wm -r}; notify-send 'bspwm' 'Config reloaded!'
+
+# Open terminal (Cmd + Return)
+super + Return
+    alacritty
+
+# Spotlight (Cmd + Space)
+ctrl + space
+    rofi -show drun -config ~/.config/rofi/apps.rasi
+
+# Quit application (Cmd + Q)
+super + q
+    bspc node -c
+
+# Run useful apps
+super + {t,x,p}
+    {thunar,sh $HOME/.bin/powermenu,pavucontrol}
+
+# Run tui
+super + {i,b,y,d}
+    {alacritty -e impala, alacritty -e bluetui, alacritty -e yazi, alacritty -e lazydocker}
+
+# Switch workspace (Cmd + 1-9)
+super + {1-9,0}
+    bspc desktop -f '^{1-9,10}'
+
+# Move between desktops (Ctrl + Left/Right)
+super + {Left,Right}
+    bspc desktop -f {prev,next}
+
+# Move window to another workspace (Cmd + ctrl + 1-9)
+super + ctrl + {1-9,0}
+    bspc node -d '^{1-9,10}'
+
+# Switch between desktop (Cmd + Tab)
+super + Tab
+    bspc node -f last
+
+# Window navigation (Cmd + H/J/K/L)
+super + {h,j,k,l}
+    bspc node -f {west,south,north,east}
+
+# Move window to another display (Cmd + Option + Arrow)
+super + alt + {h,j,k,l}
+    bspc node -s {west,south,north,east}
+
+# Fullscreen (Cmd + Ctrl + F)
+super + alt + f
+    bspc node -t "~"{fullscreen,tiled}
+
+super + alt + t
+	bspc node -t "~"{floating,tiled}
+
+# Screenshots (Cmd + Shift + 3/4)
+super + shift + 3
+    flameshot full -p ~/Screenshots
+super + shift + 4
+    flameshot gui
+
+# Volume controls (F11/F12 for volume, F10 for mute)
+XF86Audio{RaiseVolume,LowerVolume,Mute}
+    sh $HOME/.bin/volume{ --up, --down, --toggle}
+
+# Brightness controls (F1/F2)
+XF86MonBrightness{Up,Down}
+    sh $HOME/.bin/brightness{ --up, --down}
+
+# Expanding windows
+super + control {h,j,k,l}
+    bspc node -z {left -20 0,right 20 0,top 0 -20,bottom 0 20}
+
+super + control + shift + {h,j,k,l}
+    bspc node -z {right -10,up +10,down -10,left +10}
+
+#
+# utils
+#
+
+# Set random wallpaper
+super + w
+	sh $HOME/.bin/random_wallpaper

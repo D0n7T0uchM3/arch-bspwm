@@ -1,0 +1,28 @@
+#!/bin/bash
+image="/tmp/screen.png"
+
+scrot "$image" -l opacity=0
+xwobf -s 11 "$image"
+
+param=("--inside-color=ffffff1c" "--ring-color=ffffff3e" \
+        "--line-color=ffffff00" "--keyhl-color=00000080" "--ringver-color=00000000" \
+        "--separator-color=22222260" "--insidever-color=0000001c" \
+        "--ringwrong-color=00000055" "--insidewrong-color=0000001c" \
+        "--verif-color=00000000" "--wrong-color=ed8796" "--time-color=ebec60" \
+        "--date-color=5ca4dc" "--layout-color=ffffff" "--timeoutline-color=000000" \
+        "--dateoutline-color=000000" "--wrongoutline-color=000000")
+
+icon="$HOME/Images/system/lock.png"
+
+setxkbmap "us"
+
+convert "$image" -modulate 70,50,100 "$image"
+
+i3lock_cmd=(i3lock -i "$image" --date-str="%A, %m %Y" --date-font="Butovo Mono" --date-size=96 --dateoutline-width=5 --clock --time-str="%H %M %S" --time-font="Butovo Mono" --time-size=144 --timeoutline-width=6 --time-pos="ix:iy" --date-pos="tx:ty+140" refresh-rate=1 --bar-indicator --wrongoutline-width=5 --wrong-font="Karmatic Arcade" --wrong-size=256 --wrong-text="EBLAN?" --lock-text="IT IS LOCKED, DUDE…")
+
+if ! "${i3lock_cmd[@]}" "${param[@]}" >/dev/null 2>&1; then
+    # We have failed, lets get back to stock one
+    "${i3lock_cmd[@]}"
+fi
+
+rm /tmp/screen.png

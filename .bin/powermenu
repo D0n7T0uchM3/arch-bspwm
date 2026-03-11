@@ -1,0 +1,40 @@
+#!/bin/env bash
+
+logout() {
+	# For each opened window
+	bspc query --nodes | while read -r winid; do
+		# Close it
+		xdotool windowkill "$winid"
+	done
+
+	# Quit bspwm
+	bspc quit 1
+}
+
+system_shutdown() {
+	pkill openrgb || true
+	pkill -f 'deepcool-digital-linux'
+	sleep 1
+	openrgb -p ~/.config/OpenRGB/shutdown.orp
+	sleep 2
+	systemctl poweroff 
+}
+
+system_reboot() {
+	pkill openrgb || true
+	pkill -f 'deepcool-digital-linux'
+	sleep 1
+	openrgb -p ~/.config/OpenRGB/shutdown.orp
+	sleep 2
+	systemctl reboot
+}
+
+choice=$(printf "  Lock\n  Logout\n  Suspend\n  Reboot\n  Shutdown" | rofi -dmenu -config ~/.config/rofi/powermenu.rasi)
+
+case "$choice" in
+  *Lock) sh $HOME/.bin/screen-lock ;;
+  *Logout) logout ;;
+  *Suspend) systemctl suspend && sh $HOME/.bin/screen-lock ;;
+  *Reboot) system_reboot ;;
+  *Shutdown) system_shutdown ;;
+esac

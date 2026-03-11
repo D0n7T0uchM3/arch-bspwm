@@ -13,11 +13,14 @@ print_colored_text() {
 }
 
 # Use blue for the ASCII art
-print_colored_text "$purple_color" "  _______   _____  __  __   ____  _   _ ___ _     ____  "
-print_colored_text "$purple_color" " |_   _\ \ / / _ \|  \/  | | __ )| | | |_ _| |   |  _ \ "
-print_colored_text "$purple_color" "   | |  \ V / | | | |\/| | |  _ \| | | || || |   | | | |"
-print_colored_text "$purple_color" "   | |   | || |_| | |  | | | |_) | |_| || || |___| |_| |"
-print_colored_text "$purple_color" "   |_|   |_| \___/|_|  |_| |____/ \___/|___|_____|____/ "
+print_colored_text "$purple_color" " ____  ___     ___ _____ ___         _   _____ ___ "
+print_colored_text "$purple_color" "|    \|   |___|_  |_   _|   |_ _ ___| |_|     |_  |"
+print_colored_text "$purple_color" "|  |  | | |   | | | | | | | | | |  _|   | | | |_  |"
+print_colored_text "$purple_color" "|____/|___|_|_| |_| |_| |___|___|___|_|_|_|_|_|___|"
+print_colored_text "$purple_color" "       _____         _      _____     _ _   _ "
+print_colored_text "$purple_color" "      |  _  |___ ___| |_   | __  |_ _|_| |_| |"
+print_colored_text "$purple_color" "      |     |  _|  _|   |  | __ -| | | | | . |"
+print_colored_text "$purple_color" "      |__|__|_| |___|_|_|  |_____|___|_|_|___|"
 
 # Use orange for version and social links
-print_colored_text "$orange_color" "Version: 1.0"
+print_colored_text "$orange_color" "Version: 1.01"

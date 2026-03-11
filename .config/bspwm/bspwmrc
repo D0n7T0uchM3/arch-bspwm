@@ -1,0 +1,108 @@
+#!/bin/sh
+
+# Start sxhkd if it's not already running
+if ! pgrep -x sxhkd > /dev/null; then
+    sxhkd &
+fi
+
+# Keyboard layout
+setxkbmap -layout us,ru -option grp:win_space_toggle
+
+# Start background services
+thunar --daemon &
+pkill udiskie || true
+udiskie -t &
+
+# Screen layout
+"$HOME/.bin/screenlayout.sh" &
+
+# Wait for monitors to be ready before configuring workspaces
+sleep 2
+
+# Configure workspaces
+bspc monitor DP-4 -d 1 2 3 4 5 6
+bspc monitor DP-2 -d 7 8
+bspc monitor HDMI-0 -d 9
+
+# BSPWM settings
+bspc config focus_follows_pointer true
+bspc config automatic_scheme alternate
+bspc config initial_polarity second_child
+
+# Window borders
+bspc config focused_border_color "#7899FA"
+bspc config normal_border_color "#1f222b"
+bspc config border_width 3
+bspc config borderless_monocle true
+bspc config active_border_color "#bd93f9"
+bspc config presel_feedback_color "#6272a4"
+
+# Fix cursor
+xsetroot -cursor_name left_ptr
+
+# Gaps configuration
+bspc config gapless_monocle false
+bspc config window_gap 17
+
+# Mouse controls
+bspc config pointer_modifier mod4
+bspc config pointer_action1 move
+bspc config pointer_action2 resize_side
+bspc config pointer_action3 resize_corner
+bspc config split_ratio 0.5
+
+# Load Xresources
+if [ -f "$HOME/.Xresources" ]; then
+    xrdb merge "$HOME/.Xresources"
+fi
+
+# Launch background scripts with error checking
+if [ -f "$HOME/.config/bspwm/scripts/launch.sh" ]; then
+    "$HOME/.config/bspwm/scripts/launch.sh" &
+fi
+
+if [ -f "$HOME/.config/polybar/launch.sh" ]; then
+    "$HOME/.config/polybar/launch.sh" &
+fi
+
+# Start notification daemon
+if [ -f "$HOME/.config/bspwm/dunstrc" ]; then
+    dunst -conf "$HOME/.config/bspwm/dunstrc" &
+else
+    dunst &
+fi
+
+# Redshift - start if not running
+if ! pgrep -x redshift > /dev/null; then
+    redshift &
+fi
+
+# Start compositor - kill existing instances first
+pkill picom || true
+sleep 1
+if [ -f "$HOME/.config/picom/picom.conf" ]; then
+    picom --config "$HOME/.config/picom/picom.conf" --daemon &
+else
+    picom --daemon &
+fi
+
+# Fix Chrome error
+rm -rf ~/.config/google-chrome/Singleton* 2>/dev/null || true
+
+# Flameshot - kill existing instances and ensure only one runs
+pkill flameshot || true
+sleep 1
+flameshot &
+
+# OpenRGB - kill existing instances and start with config
+pkill openrgb || true
+sleep 1
+openrgb -p ~/.config/OpenRGB/lianli.orp
+
+# Deepcool - kill existing instances and start with config
+pkill deepcool-digital-linux || true
+sleep 1
+"$HOME/.bin/deepcool-digital-linux" &
+
+# Wait for all background processes
+wait

@@ -1,53 +1,60 @@
-import subprocess
-from typing import List
-
-from logger import Logger, LoggerStatus
+from installation.installation_tools import Executer
+from logger import Logger
+import os
+from typing import NamedTuple
 
 logger = Logger()
+
+class ServiceConfig(NamedTuple):
+    """Represents a system service configuration to be enabled and/or started."""
+    name: str
+    start: bool
 
 class Daemons:
     @staticmethod
     def enable_all_daemons():
+        """Enables and starts essential system daemons/services."""
         services_to_enable = [
-            {"name": "NetworkManager", "start": False},
-            {"name": "bluetooth.service", "start": True},
+            ServiceConfig("NetworkManager", True),
+            ServiceConfig("bluetooth.service", True),
+            ServiceConfig("lightdm.service", False),   # display manager - start on next boot only
+            ServiceConfig("sshd.service", True),
+            ServiceConfig("docker.service", True),
         ]
 
         for service in services_to_enable:
-            Daemons.__manage_service(service["name"], enable=True, start=service["start"])
+            Daemons.__manage_service(
+                service_name=service.name,
+                enable=True,
+                start=service.start
+            )
 
     @staticmethod
     def __manage_service(service_name: str, enable: bool = False, start: bool = False):
         """
-        Enables and/or starts a system service using systemctl.
-
-        :param service_name: Name of the service to manage.
-        :param enable: Whether to enable the service.
-        :param start: Whether to start the service.
+        Manages system services using systemctl with optimal command execution.
+        
+        Args:
+            service_name: Name of the service to manage
+            enable: Whether to enable the service to start on boot
+            start: Whether to immediately start the service
         """
-
-        if enable:
-            Daemons.__run_command(["sudo", "systemctl", "enable", service_name], f"Enabling {service_name}")
-
-        if start:
-            Daemons.__run_command(["sudo", "systemctl", "start", service_name], f"Starting {service_name}")
-
-    @staticmethod
-    def __run_command(command: List[str], action_description: str):
-        """
-        Executes a system command and logs the outcome.
-
-        :param command: List of command arguments.
-        :param action_description: Description of the action being performed.
-        """
+        sudo_required = os.geteuid() != 0
+        base_cmd = ["sudo"] if sudo_required else []
 
         try:
-            logger.add_record(f"[+] {action_description}", status=LoggerStatus.SUCCESS)
-            result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            logger.add_record(f"Output: {result.stdout.strip()}", status=LoggerStatus.SUCCESS)
-        except subprocess.CalledProcessError as e:
-            logger.add_record(f"Error while {action_description.lower()}: {e.stderr.strip()}",
-                              status=LoggerStatus.FAILURE)
+            if enable and start:
+                command = base_cmd + ["systemctl", "enable", "--now", service_name]
+                Executer.execute_command(command, f"Enabling and starting {service_name}")
+            elif enable:
+                command = base_cmd + ["systemctl", "enable", service_name]
+                Executer.execute_command(command, f"Enabling {service_name}")
+            elif start:
+                command = base_cmd + ["systemctl", "start", service_name]
+                Executer.execute_command(command, f"Starting {service_name}")
+            else:
+                logger.warning(f"No action specified for service {service_name}. Skipping.")
+                
         except Exception as e:
-            logger.add_record(f"Unexpected error while {action_description.lower()}: {str(e)}",
-                              status=LoggerStatus.FAILURE)
+            logger.error(f"Failed to manage service {service_name}: {str(e)}")
+            raise

@@ -1,0 +1,2 @@
+[SUCCESS] | Starting User Interface | 2025-08-02 14:14:04
+[ERROR] | Failed to display welcome banner: Command '['sh', 'assets/startup.sh']' returned non-zero exit status 127. | 2025-08-02 14:14:04

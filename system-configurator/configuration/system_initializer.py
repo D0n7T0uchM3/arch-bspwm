@@ -1,9 +1,9 @@
-import subprocess
-
 from logger import Logger, LoggerStatus
 from configuration.software import AurBuilder
+import os
 
-from installation import packages
+from installation import packages as pkg
+from installation.installation_tools import Executer
 from installation.drivers import GraphicDrivers
 from installation.patches import PatchSystemBugs
 from installation.daemons import Daemons
@@ -11,29 +11,27 @@ from installation.daemons import Daemons
 logger = Logger()
 
 class SystemConfiguration:
-
     @staticmethod
-    def run_command(command: str):
-        try:
-            subprocess.run(command, check=True, shell=True)
-            logger.add_record(f"Executed: {command}", status=LoggerStatus.SUCCESS)
-        except subprocess.CalledProcessError as e:
-            logger.add_record(f"Command failed: {command}, Error: {e}", status=LoggerStatus.ERROR)
+    def install_packages(package_names: list):
+        installer = ["yay", "-S", "--noconfirm"]
 
-    @staticmethod
-    def install_packages(package_names: list, aur: bool = False):
-        installer = "yay -S --noconfirm" if aur else "sudo pacman -S --noconfirm"
         for package in package_names:
-            SystemConfiguration.run_command(f"{installer} {package}")
-            logger.add_record(f"Installed: {package}", status=LoggerStatus.SUCCESS)
+            command = installer + [package]
+            Executer.execute_command(
+                command=command,
+                action_description=f"Installation of {package}"
+            )
 
     @staticmethod
     def start(*args):
         logger.add_record(f"[+] Starting assembly. Options {args}", status=LoggerStatus.SUCCESS)
+        
+        graphic_drivers = GraphicDrivers()
+        
         if args[0]: SystemConfiguration.__start_option_1()
         if args[1]: SystemConfiguration.__start_option_2()
         if args[2]: SystemConfiguration.__start_option_3()
-        if args[3]: GraphicDrivers.build()
+        if args[3]: graphic_drivers.install()
 
         Daemons.enable_all_daemons()
         PatchSystemBugs.enable_all_patches()
@@ -45,30 +43,55 @@ class SystemConfiguration:
 
     @staticmethod
     def __start_option_2():
-        SystemConfiguration.run_command("sudo pacman -Sy")
-        logger.add_record("[+] Updates Enabled", status=LoggerStatus.SUCCESS)
+        Executer.execute_command(["sudo", "pacman", "-Sy"], f"Updates")
 
     @staticmethod
     def __start_option_3():
         AurBuilder.build()
-        SystemConfiguration.install_packages(packages.PACKAGES)
+        SystemConfiguration.install_packages(pkg.PACKAGES)
+        SystemConfiguration.install_packages(pkg.AUR_PACKAGES)
         logger.add_record("[+] Installed BSPWM Dependencies", status=LoggerStatus.SUCCESS)
 
     @staticmethod
     def __create_default_folders():
-        default_folders = "~/Videos ~/Documents ~/Downloads ~/Music ~/Desktop"
-        SystemConfiguration.run_command("mkdir -p ~/.config")
-        SystemConfiguration.run_command(f"mkdir -p {default_folders}")
-        SystemConfiguration.run_command("cp -r ../Images/ ~/")
-        logger.add_record("[+] Create default directories", status=LoggerStatus.SUCCESS)
+        try:
+            home_dir = os.path.expanduser("~")
+            default_folders = ["Videos", "Documents", "Downloads", "Music", "Desktop"]
+            
+            for folder in default_folders:
+                full_path = os.path.join(home_dir, folder)
+                Executer.execute_command(["mkdir", "-p", full_path], f"Creating folder: {folder}")
+            
+            source_images = "../Images"
+            Executer.execute_command(["cp", "-r", source_images, home_dir], "Copying Images folder")
+            
+            logger.add_record("[+] Created default directories", status=LoggerStatus.SUCCESS)
+        except Exception as e:
+            logger.add_record(f"[-] Failed to create default directories: {str(e)}", status=LoggerStatus.ERROR)
+            raise
 
     @staticmethod
     def __copy_bspwm_dotfiles():
-        SystemConfiguration.run_command("cp -r ../config/* ~/.config/")
-        SystemConfiguration.run_command("cp ../Xresources ~/.Xresources")
-        SystemConfiguration.run_command("cp ../gtkrc-2.0 ~/.gtkrc-2.0")
-        SystemConfiguration.run_command("cp -r ../local ~/.local")
-        SystemConfiguration.run_command("cp -r ../themes ~/.themes")
-        SystemConfiguration.run_command("cp ../xinitrc ~/.xinitrc")
-        SystemConfiguration.run_command("cp -r ../bin/ ~/")
-        logger.add_record("[+] Copy Dotfiles & GTK", status=LoggerStatus.SUCCESS)
+        try:
+            home_dir = os.path.expanduser("~")
+            items_to_copy = [
+                ("../Xresources", ".Xresources"),
+                ("../gtkrc-2.0", ".gtkrc-2.0"),
+                ("../xinitrc", ".xinitrc"),
+                ("../.bin/", ".bin"),
+                ("../.config/", ".config")
+            ]
+            
+            for source_path, dest_name in items_to_copy:
+                dest_path = os.path.join(home_dir, dest_name)
+                
+                recursive = True if source_path.endswith('/') or os.path.isdir(source_path) else False
+                cmd = ["cp", "-r"] if recursive else ["cp"]
+                
+                Executer.execute_command(cmd + [source_path, dest_path], 
+                                    f"Copying {source_path} to {dest_path}")
+            
+            logger.add_record("[+] Copied Dotfiles & GTK", status=LoggerStatus.SUCCESS)
+        except Exception as e:
+            logger.add_record(f"[-] Failed to copy dotfiles: {str(e)}", status=LoggerStatus.ERROR)
+            raise
